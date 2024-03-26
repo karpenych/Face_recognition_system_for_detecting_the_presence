@@ -1,0 +1,20 @@
+﻿@model face_rec_test1.Models.AdminPanelModel.LoadVectorsModel
+
+<div class="mb-3">
+    <h3>Добавление векторов лиц</h3>
+    <p>Формат: Общая папка, в ней папки, названия которых - ID студента, в папке его фотографии лица (рекомендуемое число фото на студента - 3)</p>
+
+    <form asp-action="LoadVectors" asp-controller="Admin" asp-anti-forgery="true" method="post">
+
+        <div>
+            <input placeholder="Путь до папки" class="form-control _input" type="text" asp-for="FolderPath" />
+            <span asp-validation-for="FolderPath"></span>
+        </div>
+
+        <div>
+            <input class="mt-1" type="submit" value="Загрузить векторы лиц" />
+        </div>
+
+    </form>
+
+</div>

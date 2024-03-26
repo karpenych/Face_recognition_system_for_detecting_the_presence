@@ -1,0 +1,122 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<style>
+    ._input {
+        width: 25%;
+        min-width: 200px;
+        border-color: #ff0000;
+    }
+</style>
+
+@model face_rec_test1.Models.TeacherPanelModel.TeacherGetStudentsModel
+
+
+
+<form asp-action="LessonStart" asp-controller="Home" asp-anti-forgery="true" method="post">
+    <div>
+        <label asp-for="Subject">Предметы:</label>
+        <select id="subjects" class="form-control _input" asp-items="@(new SelectList(ViewBag.Subjects))">
+            <option></option>
+        </select>
+        <span asp-validation-for="Subject"></span>
+    </div>
+
+    <div class="mt-3">
+        <label asp-for="Group_id">Группы:</label>
+        <select id="groups" class="form-control _input" asp-for="Group_id"></select>
+        <span asp-validation-for="Group_id"></span>
+    </div>
+ 
+
+    <div class="mt-3 btn-group d-inline-block">
+        <input class="btn btn-outline-primary me-2" type="submit" value="Начать занятие" />
+        <button class="btn btn-outline-danger" onclick="LessonOff()">Закончить занятие</button>
+    </div>
+</form>
+
+
+
+<div class="btn-group mt-3 d-inline-block">
+    <button class="btn btn-outline-primary me-2" onclick="CameraOn()">Камера старт</button>
+    <button class="btn btn-outline-danger" onclick="CameraOff()">Камера стоп</button>
+</div>
+
+
+<div class="mt-3">
+    <table>
+        <tr> <th>ID</th> <th>ФИО</th> <th>Присутствие</th> </tr>
+        @if (UserInfo.CurStudentsNames != null)
+        {
+            foreach (var student in UserInfo.CurStudentsNames)
+            {
+                <tr> <td>@student.Id</td> <td>@student.Full_name</td> <td id="@student.Id"></td> </tr>
+            }
+        }
+    </table>
+</div>
+
+@* <button class="btn btn-outline-danger" onclick="MarkStudent('2')">Отметить</button> *@
+
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+<script>
+
+    $('#subjects').change(function () {
+        var _subject = $('#subjects').val();
+        var items = '<option></option>';
+
+        $.ajax({
+            type: "POST",
+            url: "/Home/GetGroups",
+            data: { subject: _subject },
+            dataType: "json",
+            success: function (data) {
+                $.each(data, function (k, option) {
+                    items += "<option value = '" + option + "'>" + option + " </option>";
+                });
+                $('#groups').html(items);
+            }
+        });
+    });
+   
+
+    function MarkStudent(id) {
+        $(`#${id}`).html("<span>&#10004</span>");
+    }
+
+    
+    function CameraOff() {
+        $.ajax({
+            type: "POST",
+            url: "/Home/CameraOff"
+        });
+    };
+
+
+    function CameraOn() {
+        $.ajax({
+            type: "POST",
+            url: "/Home/CameraOn"
+        });
+    };
+
+
+    function LessonOff() {
+        $.ajax({
+            type: "POST",
+            url: "/Home/LessonOff"
+        });
+    }
+
+</script>

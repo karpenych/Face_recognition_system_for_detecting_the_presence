@@ -1,0 +1,46 @@
+﻿@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_Layout_login.cshtml";
+}
+
+<style>
+    ._input {
+       width: 25%;
+       min-width: 200px;
+       border-color: #ff0000;
+       margin-bottom: 1%;
+    }
+</style>
+
+@model face_rec_test1.Models.LoginModel
+
+
+<form asp-action="Login" asp-controller="Account" asp-anti-forgery="true" method="post">
+    
+    <div asp-validation-summary="ModelOnly"></div>
+    
+    <div>
+        <label asp-for="Login">Введите Логин</label><br />
+        <input class="form-control _input" type="text" asp-for="Login" />
+        <span asp-validation-for="Login"></span>
+    </div>
+
+    <div>
+        <label asp-for="Password">Введите пароль</label><br />
+        <input class="form-control _input" typr="password" asp-for="Password" />
+        <span asp-validation-for="Password"></span>
+    </div>
+
+    <div>
+        <input class="mt-1" type="submit" value="Войти" />
+    </div>
+
+</form>
+
+
+@section scripts
+{
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}
+
