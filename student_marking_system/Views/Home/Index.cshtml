@@ -52,8 +52,12 @@
         @if (UserInfo.CurStudentsNames != null)
         {
             foreach (var student in UserInfo.CurStudentsNames)
-            {
-                <tr> <td>@student.Id</td> <td>@student.Full_name</td> <td id="@student.Id"></td> </tr>
+            {  
+                <tr> 
+                    <td>@student.Id</td> 
+                    <td>@student.Full_name</td> 
+                    <td id="@student.Id"> @if (student.IsThere) { <span>&#10004</span> } </td> 
+                </tr>
             }
         }
     </table>
@@ -115,7 +119,10 @@
     function LessonOff() {
         $.ajax({
             type: "POST",
-            url: "/Home/LessonOff"
+            url: "/Home/LessonOff",
+            success: function () {
+                window.location.reload(true);
+            }
         });
     }
 
