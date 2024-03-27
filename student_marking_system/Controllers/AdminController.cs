@@ -34,7 +34,7 @@ namespace face_rec_test1.Controllers
 
                 using FaceRecognition fr = FaceRecognition.Create($"{Environment.CurrentDirectory}\\Face_Rec_Models");
 
-                StringBuilder query_sb = new StringBuilder("INSERT INTO face_encodings VALUES ");
+                StringBuilder query_sb = new("INSERT INTO face_encodings VALUES ");
 
                 DirectoryInfo[] group_dirs = directory.GetDirectories();
 

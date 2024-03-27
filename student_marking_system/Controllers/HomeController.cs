@@ -23,32 +23,7 @@ namespace face_rec_test1.Controllers
             if (UserInfo.UserLogin == "admin_msun")
                 return RedirectToAction("Login", "Account");
 
-            ViewBag.Subjects = GetSubjects();
-
             return View();
-        }
-
-
-        public IEnumerable<string> GetSubjects()
-        {
-            try
-            {
-                var subjects = UserInfo.Connection.Query<string>(
-                    "SELECT DISTINCT subject FROM teachers_groups WHERE login=@UserLogin", new { UserInfo.UserLogin }).ToList();
-
-                Console.WriteLine("Вы преподаете предметы:");
-                foreach (var subject in subjects)
-                    Console.WriteLine(subject);
-                Console.WriteLine();
-
-
-                return subjects;
-            }
-            catch
-            {
-                Console.WriteLine("Ошибка взятия Subjects");
-                return null;
-            }
         }
 
 
@@ -85,7 +60,7 @@ namespace face_rec_test1.Controllers
             }
             catch
             {
-                Console.WriteLine("Ошибка взятия информации о учителе");
+                Console.WriteLine("Ошибка взятия информации о группе");
                 return RedirectToAction("Login", "Account");
             }
 
@@ -99,6 +74,8 @@ namespace face_rec_test1.Controllers
                 Console.WriteLine($"{s.Id} - {s.Encoding}");
             Console.WriteLine();
 
+            UserInfo.CurSubject = model.Subject;
+            UserInfo.CurGroup = model.Group_id;
 
             UserInfo.IsLesson = true;
             UserInfo.IsCameraWorking = true;
@@ -115,10 +92,15 @@ namespace face_rec_test1.Controllers
         [HttpPost]
         public void LessonOff()
         {
+            UserInfo.CurSubject = null;
+            UserInfo.CurGroup = null;
+
             UserInfo.IsCameraWorking = false;
             UserInfo.IsLesson = false;
-            UserInfo.CurStudentsNames = null;
-            UserInfo.CurStudentsEncoodings = null;
+
+            UserInfo.CurStudentsNames = Array.Empty<TeacherPanelModel.TeacherStudentsName>();
+            UserInfo.CurStudentsEncoodings = Array.Empty<TeacherPanelModel.TeacherStudentsEncoding>();
+
             Console.WriteLine("Урок окончен");
         }
 
@@ -223,6 +205,8 @@ namespace face_rec_test1.Controllers
                                         {
                                             student.IsThere = true;
                                             Console.WriteLine($"Пришел {student.Full_name} ({student.Id})");
+
+                                            Thread.Sleep(2000);
                                             break;
                                         }
                                     }
@@ -235,9 +219,8 @@ namespace face_rec_test1.Controllers
                             else
                             {
                                 Console.WriteLine("Никого нет");
+                                Thread.Sleep(2000);
                             }
-
-                            Thread.Sleep(2000);
                         }
 
                         camera.Dispose();
