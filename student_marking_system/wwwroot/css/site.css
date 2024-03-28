@@ -18,5 +18,10 @@ html {
 }
 
 body {
+  box-sizing: border-box;
   margin-bottom: 60px;
+}
+
+.header {
+    background-color: #3b4f6f;
 }

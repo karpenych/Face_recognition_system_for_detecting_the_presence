@@ -68,20 +68,36 @@ namespace face_rec_test1.Controllers
                 }
                 else
                 {
+                    try
+                    {
+                        UserInfo.Subjects = UserInfo.Connection.Query<string>(
+                            "SELECT DISTINCT subject FROM teachers_groups WHERE login=@UserLogin", new { UserInfo.UserLogin }).ToArray();
+                    }
+                    catch
+                    {
+                        ModelState.AddModelError("", "Не удалось получить список ваших предметов с сервера БД");
+                        return View(model);
+                    }
+
+                    Console.WriteLine("Вы преподаете предметы:");
+                    foreach (var subject in UserInfo.Subjects)
+                        Console.WriteLine(subject);
+                    Console.WriteLine();
+
                     return RedirectToAction("Index", "Home");
                 }
             }
             
             ModelState.AddModelError("", "Некорректный логин (и/или) пароль");
-
             return View(model);
         }
 
 
         public IActionResult LogOut()
         {
-            UserInfo.UserLogin = null;
+            UserInfo.Subjects = Array.Empty<string>();
 
+            UserInfo.UserLogin = null;
             UserInfo.UserFullName = null;
 
             return RedirectToAction("Login", "Account");

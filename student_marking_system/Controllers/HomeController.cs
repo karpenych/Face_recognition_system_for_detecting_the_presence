@@ -9,6 +9,10 @@ using Dapper;
 using Emgu.CV.Dnn;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Razor.Infrastructure;
+using System.Text;
+using Emgu.CV.Structure;
+using System.Reflection.Metadata.Ecma335;
+using System.Runtime.InteropServices;
 
 namespace face_rec_test1.Controllers
 {
@@ -19,32 +23,7 @@ namespace face_rec_test1.Controllers
             if (UserInfo.UserLogin == "admin_msun")
                 return RedirectToAction("Login", "Account");
 
-            ViewBag.Subjects = GetSubjects();
-
             return View();
-        }
-
-
-        public IEnumerable<string> GetSubjects()
-        {
-            try
-            {
-                var subjects = UserInfo.Connection.Query<string>(
-                    "SELECT DISTINCT subject FROM teachers_groups WHERE login=@UserLogin", new { UserInfo.UserLogin }).ToList();
-
-                Console.WriteLine("Вы преподаете предметы:");
-                foreach (var subject in subjects)
-                    Console.WriteLine(subject);
-                Console.WriteLine();
-
-
-                return subjects;
-            }
-            catch
-            {
-                Console.WriteLine("Ошибка взятия Subjects");
-                return null;
-            }
         }
 
 
@@ -74,22 +53,29 @@ namespace face_rec_test1.Controllers
             try
             {
                 UserInfo.CurStudentsNames = UserInfo.Connection.Query<TeacherPanelModel.TeacherStudentsName>(
-                    "SELECT id, full_name FROM students WHERE group_id=@Group_id", new { model.Group_id }).ToList();
+                    "SELECT id, full_name FROM students WHERE group_id=@Group_id", new { model.Group_id }).ToArray();
 
                 UserInfo.CurStudentsEncoodings = UserInfo.Connection.Query<TeacherPanelModel.TeacherStudentsEncoding>(
-                    "SELECT s.id, fe.encoding FROM students s JOIN face_encodings fe ON s.id=fe.student_id WHERE s.group_id=@Group_id", new { model.Group_id }).ToList();
+                    "SELECT s.id, fe.encoding FROM students s JOIN face_encodings fe ON s.id=fe.student_id WHERE s.group_id=@Group_id", new { model.Group_id }).ToArray();
             }
             catch
             {
-                Console.WriteLine("Ошибка взятия информации о учителе");
+                Console.WriteLine("Ошибка взятия информации о группе");
                 return RedirectToAction("Login", "Account");
             }
+
+            Console.WriteLine($"Информация о студентах {model.Group_id}:");
+            foreach (var s in UserInfo.CurStudentsNames)
+                Console.WriteLine($"{s.Id} - {s.Full_name} - {s.IsThere}");
+            Console.WriteLine();
 
             Console.WriteLine($"Информация о векторах {model.Group_id}:");
             foreach (var s in UserInfo.CurStudentsEncoodings)
                 Console.WriteLine($"{s.Id} - {s.Encoding}");
             Console.WriteLine();
 
+            UserInfo.CurSubject = model.Subject;
+            UserInfo.CurGroup = model.Group_id;
 
             UserInfo.IsLesson = true;
             UserInfo.IsCameraWorking = true;
@@ -106,8 +92,15 @@ namespace face_rec_test1.Controllers
         [HttpPost]
         public void LessonOff()
         {
+            UserInfo.CurSubject = null;
+            UserInfo.CurGroup = null;
+
             UserInfo.IsCameraWorking = false;
             UserInfo.IsLesson = false;
+
+            UserInfo.CurStudentsNames = Array.Empty<TeacherPanelModel.TeacherStudentsName>();
+            UserInfo.CurStudentsEncoodings = Array.Empty<TeacherPanelModel.TeacherStudentsEncoding>();
+
             Console.WriteLine("Урок окончен");
         }
 
@@ -128,9 +121,15 @@ namespace face_rec_test1.Controllers
         }  
 
 
-
         private void CameraHandleLoop()
         {
+            const double tolerance = 0.6d;
+
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            FaceRecognition.InternalEncoding = System.Text.Encoding.GetEncoding("windows-1251");
+
+            using FaceRecognition fr = FaceRecognition.Create($"{Environment.CurrentDirectory}\\Face_Rec_Models");
+
             while (UserInfo.IsLesson)
             { 
                 if (UserInfo.IsCameraWorking)
@@ -154,8 +153,74 @@ namespace face_rec_test1.Controllers
                                 break;
                             }
 
-                            Console.WriteLine("Life is Good");
-                            Thread.Sleep(2000);
+                            var bytes = new byte[frame.Rows * frame.Cols * frame.ElementSize];
+                            Marshal.Copy(frame.DataPointer, bytes, 0, bytes.Length);
+
+                            using Image photo = FaceRecognition.LoadImage(bytes, frame.Rows, frame.Cols, frame.ElementSize * frame.Cols, Mode.Rgb);
+
+                            List<Location> faces = fr.FaceLocations(photo).ToList();
+
+                            if (faces.Count > 0)
+                            {
+                                Location face = faces[0];
+                                int main_face_square = (face.Bottom - face.Top) * (face.Right - face.Left);
+
+                                for (int i = 1; i < faces.Count; ++i)
+                                {
+                                    Location cur_face = faces[i];
+                                    int cur_face_square = (cur_face.Bottom - cur_face.Top) * (cur_face.Right - cur_face.Left);
+                                    if (cur_face_square > main_face_square)
+                                    {
+                                        face = cur_face;
+                                        main_face_square = cur_face_square;
+                                    }
+                                }
+
+                                Console.WriteLine($"t: {face.Top}, l: {face.Left}, b:{face.Bottom}, r:{face.Right}");
+
+                                FaceEncoding unknown_encoding = fr.FaceEncodings(photo, new List<Location>() { face }).First();
+
+                                Dictionary<int, int> counts = new();
+
+                                foreach (var student in UserInfo.CurStudentsEncoodings)
+                                {
+                                    FaceEncoding known_encoding = FaceRecognition.LoadFaceEncoding(student.Encoding);
+
+                                    if (FaceRecognition.CompareFace(known_encoding, unknown_encoding, tolerance))
+                                    {
+                                        if (!counts.ContainsKey(student.Id))
+                                            counts.Add(student.Id, 0);
+
+                                        counts[student.Id]++;
+                                    }
+                                }
+
+                                if (counts.Count > 0)
+                                {
+                                    var students_id_to_mark = counts.MaxBy(x => x.Value).Key;
+
+                                    foreach (var student in UserInfo.CurStudentsNames)
+                                    {
+                                        if (student.Id == students_id_to_mark)
+                                        {
+                                            student.IsThere = true;
+                                            Console.WriteLine($"Пришел {student.Full_name} ({student.Id})");
+
+                                            Thread.Sleep(2000);
+                                            break;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Броу, это не твоя пара...");
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("Никого нет");
+                                Thread.Sleep(2000);
+                            }
                         }
 
                         camera.Dispose();

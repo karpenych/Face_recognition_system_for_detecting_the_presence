@@ -25,6 +25,8 @@ namespace face_rec_test1.Models
             public int Id { get; set; }
 
             public string? Full_name { get; set; }
+
+            public bool IsThere {  get; set; }
         }
 
         public class TeacherStudentsEncoding
