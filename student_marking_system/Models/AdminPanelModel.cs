@@ -10,7 +10,7 @@ namespace face_rec_test1.Models
             public string? FolderPath { get; set; }
         }
 
-        public class EmployeeModel
+        public class AddEmployeeModel
         {
             [Required(ErrorMessage = "Введите логин")]
             public string? Login { get; set; }
@@ -21,12 +21,26 @@ namespace face_rec_test1.Models
             public string? Full_name { get; set; }
         }
 
-        public class FaceEncodingsModel
+        public class AddTeacherSubjectModel
         {
-            [Required(ErrorMessage = "Введите ID студента")]
-            public int Student_id { get; set; }
+            [Required(ErrorMessage = "Введите логин")]
+            public string? Login { get; set; }
 
-            public double[]? Encoding { get; set; }
+            [Required(ErrorMessage = "Введите группу")]
+            public string? Group_id { get; set; }
+
+            [Required(ErrorMessage = "Введите предмет")]
+            public string? Subject { get; set; }
         }
+
+        public class AddStudentModel
+        {
+            [Required(ErrorMessage = "Введите группу")]
+            public string? Group_id { get; set; }
+
+            [Required(ErrorMessage = "Введите ФИО")]
+            public string? Full_name { get; set; }
+        }
+
     }
 }

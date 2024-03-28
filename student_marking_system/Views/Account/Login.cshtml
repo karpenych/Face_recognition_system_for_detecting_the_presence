@@ -10,10 +10,9 @@
     <form asp-action="Login" asp-controller="Account" asp-anti-forgery="true" method="post">
         <div class="warning" asp-validation-summary="ModelOnly"></div>
 
-        <div>
-            <span class="warning" asp-validation-for="Login"></span>
-            <br />
-            <span class="warning" asp-validation-for="Password"></span>
+        <div class="warning">
+            <span asp-validation-for="Login"></span>
+            <span asp-validation-for="Password"></span>
         </div>
 
         <div class ="mt-3">

@@ -2,10 +2,9 @@
 
 <div class="center">
     <form asp-action="LessonStart" asp-controller="Home" asp-anti-forgery="true" method="post">
-        <div>
-            <span class="warning" asp-validation-for="Subject"></span>
-            <br />
-            <span class="warning" asp-validation-for="Group_id"></span>
+        <div class="warning">
+            <span asp-validation-for="Subject"></span>
+            <span asp-validation-for="Group_id"></span>
         </div>
 
         <div class="mt-3">

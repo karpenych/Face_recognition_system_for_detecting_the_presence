@@ -67,6 +67,7 @@ h1 {
 .warning {
     color: #ff6666;
     font-weight: 500;
+    display: grid;
 }
 
 .header h1, p {
