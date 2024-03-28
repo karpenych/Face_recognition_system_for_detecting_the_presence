@@ -1,34 +1,49 @@
-﻿<h2>Предмет: @UserInfo.CurSubject</h2>
-<h3>Группа: @UserInfo.CurGroup</h3>
+﻿<div class="center-lesson">
+    <div>
 
-<button class="btn btn-outline-danger" onclick="LessonOff()">Закончить занятие</button>
+        <h2 style="text-align: center;">@UserInfo.CurSubject</h2>
+        <h3 style="text-align: center;">@UserInfo.CurGroup</h3>
 
-<div class="btn-group mt-3 d-inline-block">
-    <button class="btn btn-outline-primary me-2" onclick="CameraOn()">Камера старт</button>
-    <button class="btn btn-outline-danger" onclick="CameraOff()">Камера стоп</button>
+        <div style="text-align: center;" class="mt-5">
+            <button class="btn btn-end-theme" style="width: 70%;" onclick="LessonOff()">Закончить занятие</button>
+        </div>
+
+        <div style="text-align: center;" class="mt-1">
+            @if (UserInfo.IsCameraWorking)
+            {
+                <button class="btn btn-start-theme me-1 disabled" style="width: 34%;" onclick="CameraOn()">Камера старт</button>
+                <button class="btn btn-stop-theme" style="width: 34%;" onclick="CameraOff()">Камера стоп</button>
+            }
+            else
+            {
+                <button class="btn btn-start-theme me-1" style="width: 34%;" onclick="CameraOn()">Камера старт</button>
+                <button class="btn btn-stop-theme disabled" style="width: 34%;" onclick="CameraOff()">Камера стоп</button>
+            }
+        </div>
+
+
+        <div class="mt-3">
+            <table class="table">
+
+                <tr class="table-dark"> <th>ID</th> <th>ФИО</th> <th>Присутствие</th> </tr>
+
+                @foreach (var student in UserInfo.CurStudentsNames)
+                {
+                    <tr scope="row">
+                        <td>@student.Id</td>
+                        <td>@student.Full_name</td>
+                        <td class="text-center" id="@student.Id"> @if (student.IsThere)
+                            {
+                                <span>&#10004</span>
+                            } 
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+
+    </div>
 </div>
-
-
-<div class="mt-3">
-    <table class="table w-auto">
-
-        <tr class="table-dark"> <th>ID</th> <th>ФИО</th> <th>Присутствие</th> </tr>
-
-        @foreach (var student in UserInfo.CurStudentsNames)
-        {
-            <tr scope="row">
-                <td>@student.Id</td>
-                <td>@student.Full_name</td>
-                <td class="text-center" id="@student.Id"> @if (student.IsThere)
-                    {
-                        <span>&#10004</span>
-                    } 
-                </td>
-            </tr>
-        }
-    </table>
-</div>
-
 
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -40,16 +55,15 @@
 
 <script>
 
-    function MarkStudent(id) {
-        $(`#${id}`).html("<span>&#10004</span>");
-    }
-
+    setTimeout(function () { location.reload(); }, 10000);
 
     function CameraOff() {
         $.ajax({
             type: "POST",
             url: "/Home/CameraOff"
         });
+
+        location.reload();
     };
 
 
@@ -58,6 +72,8 @@
             type: "POST",
             url: "/Home/CameraOn"
         });
+
+        location.reload();
     };
 
 
@@ -72,3 +88,4 @@
     }
 
 </script>
+

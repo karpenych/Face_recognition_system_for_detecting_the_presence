@@ -37,7 +37,8 @@ namespace face_rec_test1.Controllers
                 }
                 catch
                 {
-                    ModelState.AddModelError("", "Сервер не доступен");
+                    UserInfo.Connection = null;
+                    ModelState.AddModelError("", "Сервер БД не доступен");
                     return View(model);
                 }
             }

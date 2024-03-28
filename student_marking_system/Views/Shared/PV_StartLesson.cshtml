@@ -10,14 +10,14 @@
 
         <div class="mt-3">
             <label asp-for="Subject">Выберите предмет:</label>
-            <select id="subjects" class="form-control _input form_element" asp-for="Subject" asp-items="@(new SelectList(UserInfo.Subjects))">
+            <select id="Subject" class="form-control _input form_element" asp-for="Subject" asp-items="@(new SelectList(UserInfo.Subjects))">
                 <option></option>
             </select>
         </div>
 
         <div class="mt-3">
             <label asp-for="Group_id">Выберите группу:</label>
-            <select id="groups" class="form-control _input form_element" asp-for="Group_id"></select>
+            <select id="Group_id" class="form-control _input form_element" asp-for="Group_id"></select>
         </div>
 
         <div class="mt-3">
@@ -36,8 +36,8 @@
 
 <script>
 
-    $('#subjects').change(function () {
-        var _subject = $('#subjects').val();
+    $('#Subject').change(function () {
+        var _subject = $('#Subject').val();
         var items = '<option></option>';
 
         $.ajax({
@@ -49,7 +49,7 @@
                 $.each(data, function (k, option) {
                     items += "<option value = '" + option + "'>" + option + " </option>";
                 });
-                $('#groups').html(items);
+                $('#Group_id').html(items);
             }
         });
     });
