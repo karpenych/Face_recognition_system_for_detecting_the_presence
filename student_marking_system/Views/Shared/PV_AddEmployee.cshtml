@@ -1,29 +1,31 @@
-﻿@model face_rec_test1.Models.AdminPanelModel.EmployeeModel
+﻿@model face_rec_test1.Models.AdminPanelModel.AddEmployeeModel
 
-<div>
+<div class="mt-3">
+
     <h3>Зарегать сотрудника</h3>
 
     <form asp-action="AddEmployee" asp-controller="Admin" asp-anti-forgery="true" method="post">
-
-        <div class="mb-3">
-            <input placeholder="Логин" class="form-control _input" type="text" asp-for="Login" />
-            <span asp-validation-for="Login"></span>
-        </div>
-
-        <div class="mb-3">
-            <input placeholder="Пароль" class="form-control _input" type="text" asp-for="Password" />
-            <span asp-validation-for="Password"></span>
-        </div>
-
-        <div class="mb-3">
-            <input placeholder="ФИО" class="form-control _input" type="text" asp-for="Full_name" />
+        <div class="warning">
+            <span asp-validation-for="Login"></span> 
+            <span asp-validation-for="Password"></span> 
             <span asp-validation-for="Full_name"></span>
         </div>
 
-        <div>
-            <input class="mt-1" type="submit" value="Добавить сотрудника" />
+        <div class="mt-1">
+            <input placeholder="Логин" class="form-control _input form_element" type="text" asp-for="Login" />
         </div>
 
+        <div class="mt-1">
+            <input placeholder="Пароль" class="form-control _input form_element" type="text" asp-for="Password" />
+        </div>
+
+        <div class="mt-1">
+            <input placeholder="ФИО (не обязательно)" class="form-control _input form_element" type="text" asp-for="Full_name" />
+        </div>
+
+        <div class="mt-1">
+            <input class="btn btn-main-theme" type="submit" value="Добавить сотрудника" />
+        </div> 
     </form>
 
 </div>

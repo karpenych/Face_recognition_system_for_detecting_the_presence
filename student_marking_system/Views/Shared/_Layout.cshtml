@@ -3,22 +3,29 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    @if (UserInfo.IsLesson) { <meta http-equiv="refresh" content="10" /> }
     <title>@ViewData["Title"] - ЛК</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/student_marking_system.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header class="header">   
-        <div class="container-fluid row">
-            <h1 class="col-8 p-3" style="">Панель преподавателя</h1>
-            <div class="col-4">
-                <p >@UserInfo.UserFullName</p>
+    <header class="header">
+        <div id="grid-container">
+
+            @if (UserInfo.UserLogin == "admin_msun")
+            {
+                <h1 id="ttl">Панель администратора</h1>
+            }
+            else
+            {
+                <h1 id="ttl">Панель преподавателя</h1>
+            }
+
+            <div id="fio"><p>@UserInfo.UserFullName</p></div>
+
+            <div id="btn">
                 <form asp-action="LogOut" asp-controller="Account" asp-anti-forgery="true">
-                    <div>
-                        <input type="submit" value="Выйти" />
-                    </div>
+                    <input class="btn btn-logout-theme" type="submit" value="Выйти" />
                 </form>
             </div>
             
@@ -37,7 +44,8 @@
         <div class="container">
             &copy; 2024 - karpenych development</a>
         </div>
-    </footer>    
+    </footer> 
+    
 
 </body>
 </html>

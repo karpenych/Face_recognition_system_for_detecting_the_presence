@@ -1,28 +1,28 @@
 ﻿@model face_rec_test1.Models.TeacherPanelModel.TeacherGetStudentsModel
 
-<div>
-
+<div class="center">
     <form asp-action="LessonStart" asp-controller="Home" asp-anti-forgery="true" method="post">
-        <div>
+        <div class="warning">
+            <span asp-validation-for="Subject"></span>
+            <span asp-validation-for="Group_id"></span>
+        </div>
+
+        <div class="mt-3">
             <label asp-for="Subject">Выберите предмет:</label>
-            <select id="subjects" class="form-control _input" asp-for="Subject" asp-items="@(new SelectList(UserInfo.Subjects))">
+            <select id="Subject" class="form-control _input form_element" asp-for="Subject" asp-items="@(new SelectList(UserInfo.Subjects))">
                 <option></option>
             </select>
-            <span asp-validation-for="Subject"></span>
         </div>
 
         <div class="mt-3">
             <label asp-for="Group_id">Выберите группу:</label>
-            <select id="groups" class="form-control _input" asp-for="Group_id"></select>
-            <span asp-validation-for="Group_id"></span>
+            <select id="Group_id" class="form-control _input form_element" asp-for="Group_id"></select>
         </div>
 
-
-        <div class="mt-3 btn-group d-inline-block">
-            <input class="btn btn-outline-primary me-2" type="submit" value="Начать занятие" />
+        <div class="mt-3">
+            <input class="btn btn-main-theme form_element" type="submit" value="Начать занятие" />
         </div>
     </form>
-
 </div>
 
 
@@ -35,8 +35,8 @@
 
 <script>
 
-    $('#subjects').change(function () {
-        var _subject = $('#subjects').val();
+    $('#Subject').change(function () {
+        var _subject = $('#Subject').val();
         var items = '<option></option>';
 
         $.ajax({
@@ -48,7 +48,7 @@
                 $.each(data, function (k, option) {
                     items += "<option value = '" + option + "'>" + option + " </option>";
                 });
-                $('#groups').html(items);
+                $('#Group_id').html(items);
             }
         });
     });

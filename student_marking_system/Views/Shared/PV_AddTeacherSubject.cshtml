@@ -1,0 +1,31 @@
+﻿@model face_rec_test1.Models.AdminPanelModel.AddTeacherSubjectModel
+
+<div class="mt-3">
+
+    <h3>Добавить преподаватель-группа-предмет</h3>
+
+    <form asp-action="AddTeacherSubject" asp-controller="Admin" asp-anti-forgery="true" method="post">
+        <div class="warning">
+            <span asp-validation-for="Login"></span>
+            <span asp-validation-for="Group_id"></span>
+            <span asp-validation-for="Subject"></span>
+        </div>
+
+        <div class="mt-1">
+            <input placeholder="Логин" class="form-control _input form_element" type="text" asp-for="Login" />
+        </div>
+
+        <div class="mt-1">
+            <input placeholder="Группа" class="form-control _input form_element" type="text" asp-for="Group_id" />
+        </div>
+
+        <div class="mt-1">
+            <input placeholder="Предмет" class="form-control _input form_element" type="text" asp-for="Subject" />
+        </div>
+
+        <div class="mt-1">
+            <input class="btn btn-main-theme" type="submit" value="Добавить Учитель-Предмет" />
+        </div>
+    </form>
+
+</div>

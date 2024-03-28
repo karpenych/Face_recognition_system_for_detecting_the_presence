@@ -123,39 +123,8 @@ namespace face_rec_test1.Controllers
         }
 
 
-        [HttpGet]
-        public IActionResult GetVectorsById(Models.AdminPanelModel.FaceEncodingsModel model)
-        {
-
-            IEnumerable<AdminPanelModel.FaceEncodingsModel> ids_encodings;
-
-            try
-            {
-                Console.WriteLine($"Поиск для {model.Student_id}");
-
-                ids_encodings = UserInfo.Connection.Query<AdminPanelModel.FaceEncodingsModel>(
-                    $"SELECT student_id, encoding FROM face_encodings WHERE student_id=@Student_id", new { model.Student_id });
-            }
-            catch
-            {
-                Console.WriteLine("Ошибка взятия векторов лиц");
-                return RedirectToAction("Adminka", "Admin");
-            }
-
-            foreach (var id_encoding in ids_encodings)
-            {
-                Console.WriteLine(id_encoding.Student_id);
-                Console.WriteLine(id_encoding.Encoding);
-
-                Console.WriteLine();
-            }
-
-            return RedirectToAction("Adminka", "Admin");
-        }
-
-
         [HttpPost]
-        public async Task<IActionResult> AddEmployee(Models.AdminPanelModel.EmployeeModel model)
+        public async Task<IActionResult> AddEmployee(Models.AdminPanelModel.AddEmployeeModel model)
         {
             Console.Write("Вставка: ");
             Console.WriteLine($"Логин: {model.Login}, Пароль: {model.Password}, ФИО: {model.Full_name}");
@@ -171,6 +140,49 @@ namespace face_rec_test1.Controllers
             }
             Console.WriteLine("Вставка работника прошла успешно");
 
+            return RedirectToAction("Adminka", "Admin");
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> AddTeacherSubject(Models.AdminPanelModel.AddTeacherSubjectModel model)
+        {
+            Console.Write("Вставка: ");
+            Console.WriteLine($"Логин: {model.Login}, Группа: {model.Group_id}, Предмет: {model.Subject}");
+
+            try
+            {
+                await UserInfo.Connection.ExecuteAsync(
+                    "INSERT INTO teachers_groups (login, group_id, subject) VALUES (@Login, @Group_id, @Subject)", model);
+            }
+            catch
+            {
+                Console.WriteLine("Ошибка вставки преподаватель-группа-предмет");
+            }
+
+            Console.WriteLine("Вставка преподаватель-группа-предмет прошла успешно");
+
+            return RedirectToAction("Adminka", "Admin");
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> AddStudent(Models.AdminPanelModel.AddStudentModel model)
+        {
+            Console.Write("Вставка: ");
+            Console.WriteLine($"Группа: {model.Group_id}, ФИО: {model.Full_name}");
+
+            try
+            {
+                await UserInfo.Connection.ExecuteAsync(
+                    "INSERT INTO students (group_id, full_name) VALUES (@Group_id, @Full_name)", model);
+            }
+            catch
+            {
+                Console.WriteLine("Ошибка вставки студента");
+            }
+
+            Console.WriteLine("Вставка студента прошла успешно");
 
             return RedirectToAction("Adminka", "Admin");
         }
