@@ -95,6 +95,8 @@ namespace face_rec_test1.Controllers
 
         public IActionResult LogOut()
         {
+            Console.WriteLine($"Досвидания {UserInfo.UserFullName}.\n");
+
             UserInfo.Subjects = Array.Empty<string>();
 
             UserInfo.UserLogin = null;

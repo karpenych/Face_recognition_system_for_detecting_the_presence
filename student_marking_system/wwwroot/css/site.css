@@ -25,3 +25,46 @@ body {
 .header {
     background-color: #3b4f6f;
 }
+
+.form_element {
+    width: 30%;
+    min-width: 200px;
+}
+
+._input {
+    border-color: #3b4f6f;
+    border-width: 2px;
+}
+
+.center {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 0;
+}
+
+.warning {
+    color: #ff6666;
+    font-weight: 500;
+}
+
+.header h1 {
+    color: whitesmoke;
+}
+
+.btn-main-theme {
+    color: #fff;
+    background-color: #3b4f6f;
+    border-color: #3b4f6f;
+}
+
+.btn-main-theme:hover {
+    color: #fff;
+    background-color: #399be2;
+    border-color: #399be2;
+}
