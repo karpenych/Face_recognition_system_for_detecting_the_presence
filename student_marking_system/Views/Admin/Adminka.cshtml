@@ -3,14 +3,18 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<div class="page-container-admin">
+    
+    <partial name="PV_LoadVectors" model="new AdminPanelModel.LoadVectorsModel()" />
 
-<partial name="PV_LoadVectors" model="new AdminPanelModel.LoadVectorsModel()" />
+    <partial name="PV_AddEmployee" model="new AdminPanelModel.AddEmployeeModel()" />
 
-<partial name="PV_AddEmployee" model="new AdminPanelModel.AddEmployeeModel()" />
+    <partial name="PV_AddTeacherSubject" model="new AdminPanelModel.AddTeacherSubjectModel()" />
 
-<partial name="PV_AddTeacherSubject" model="new AdminPanelModel.AddTeacherSubjectModel()" />
+    <partial name="PV_AddStudent" model="new AdminPanelModel.AddStudentModel()" />
+    
+</div>
 
-<partial name="PV_AddStudent" model="new AdminPanelModel.AddStudentModel()" />
 
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>

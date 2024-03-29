@@ -1,15 +1,16 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
     Layout = "~/Views/Shared/_Layout.cshtml";
-
 }
 
 
-@if (UserInfo.IsLesson)
-{
-    <partial name="PV_Lesson" />
-}
-else
-{
-    <partial name="PV_StartLesson" model="new TeacherPanelModel.TeacherGetStudentsModel()" />
-}
+<div class="page-container">
+    @if (UserInfo.IsLesson)
+    {
+        <partial name="PV_Lesson" />
+    }
+    else
+    {
+        <partial name="PV_StartLesson" model="new TeacherPanelModel.TeacherGetStudentsModel()" />
+    }
+</div>
