@@ -18,30 +18,38 @@ html {
 }
 
 body {
-  box-sizing: border-box;
-  margin-bottom: 60px;
+    box-sizing: border-box;
+    margin-bottom: 60px;
 }
 
 h1 {
     font-size: 2.4em;
 }
 
-.header {
-    background-color: #3b4f6f;
-    padding: 1%;
+h3 {
+    text-align: center;
 }
 
-.form_element {
-    width: 30%;
-    min-width: 200px;
+main {
+    width: min(max(50vw, 950px), 100% - 4rem);
+    margin: 1rem auto 1rem auto;
 }
 
-._input {
-    border-color: #3b4f6f;
-    border-width: 2px;
+.page-container-admin {
+    display: grid;
+    grid-template-columns: auto auto;
 }
 
-.center {
+.page-container {
+    display: grid;
+    grid-template-columns: auto;
+}
+
+.page-container-center {
+    text-align: center;
+}
+
+.absolute-center {
     width: 100%;
     height: 100%;
     position: fixed;
@@ -53,15 +61,18 @@ h1 {
     z-index: 0;
 }
 
-.center-lesson {
-    margin-top: 2%;
-    width: 100%;
-    height: 100%;
-    position: fixed;
-    left: 0;
-    display: flex;
-    justify-content: center;
-    z-index: 0;
+
+/*Form*/
+
+.form_element {
+    width: 30%;
+    min-width: 200px;
+    margin: auto;
+}
+
+._input {
+    border-color: #3b4f6f;
+    border-width: 2px;
 }
 
 .warning {
@@ -70,9 +81,8 @@ h1 {
     display: grid;
 }
 
-.header h1, p {
-    color: whitesmoke;
-}
+
+/*Buttons*/
 
 .btn-main-theme {
     color: #fff;
@@ -134,25 +144,21 @@ h1 {
     border-color: #339966;
 }
 
+
+/*Header*/
+
+.header {
+    background-color: #3b4f6f;
+    padding: 1%;
+}
+
+.header h1, p {
+    color: whitesmoke;
+}
+
 #grid-container {
     display: grid;
     grid-template-areas: 'ttl ttl . . fio fio fio btn';
-}
-
-#btn {
-    height: 100%;
-    z-index: 1;
-    position: relative;
-    grid-area: btn;
-}
-
-#btn form {
-    width: 100%;
-    text-align: end;
-    margin: 0;
-    position: absolute;
-    top: 50%;
-    transform: translate(0, -50%)
 }
 
 #ttl {
@@ -177,6 +183,21 @@ h1 {
     transform: translate(0, -50%)
 }
 
+#btn {
+    height: 100%;
+    z-index: 1;
+    position: relative;
+    grid-area: btn;
+}
+
+#btn form {
+    width: 100%;
+    text-align: end;
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    transform: translate(0, -50%)
+}
 
 @media only screen and (max-width: 700px) {
     #grid-container {
@@ -199,7 +220,6 @@ h1 {
     #btn form {     
         text-align: center;
     }
-
 }
 
 
@@ -207,9 +227,18 @@ h1 {
     #grid-container {
         grid-template-areas: 'ttl fio fio fio btn';
     }
-
-
 }
 
 
+/*Footer*/
+
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px;
+    border-top: solid #3b4f6f 2px;
+}
 
