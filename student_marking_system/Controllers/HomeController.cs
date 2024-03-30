@@ -1,18 +1,13 @@
 ﻿using face_rec_test1.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
-using System.Runtime.CompilerServices;
 using FaceRecognitionDotNet;
 using Dapper;
-using Emgu.CV.Dnn;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Razor.Infrastructure;
 using System.Text;
-using Emgu.CV.Structure;
-using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
+
+
 
 namespace face_rec_test1.Controllers
 {
@@ -53,25 +48,28 @@ namespace face_rec_test1.Controllers
             try
             {
                 UserInfo.CurStudentsNames = UserInfo.Connection.Query<TeacherPanelModel.TeacherStudentsName>(
-                    "SELECT id, full_name FROM students WHERE group_id=@Group_id", new { model.Group_id }).ToArray();
-
-                UserInfo.CurStudentsEncoodings = UserInfo.Connection.Query<TeacherPanelModel.TeacherStudentsEncoding>(
-                    "SELECT s.id, fe.encoding FROM students s JOIN face_encodings fe ON s.id=fe.student_id WHERE s.group_id=@Group_id", new { model.Group_id }).ToArray();
+                    "SELECT id, full_name FROM students WHERE group_id=@Group_id", new { model.Group_id }).OrderBy(x => x.Full_name).ThenBy(x => x.Id).ToArray();
             }
             catch
             {
-                Console.WriteLine("Ошибка взятия информации о группе");
+                Console.WriteLine("Ошибка взятия информации о студентах");
                 return RedirectToAction("Login", "Account");
             }
 
-            Console.WriteLine($"Информация о студентах {model.Group_id}:");
-            foreach (var s in UserInfo.CurStudentsNames)
-                Console.WriteLine($"{s.Id} - {s.Full_name} - {s.IsThere}");
-            Console.WriteLine();
+            try
+            {
+                UserInfo.CurStudentsEncoodings = UserInfo.Connection.Query<TeacherPanelModel.TeacherStudentsEncoding>(
+                    "SELECT student_id, encoding FROM face_encodings WHERE group_id=@Group_id", new { model.Group_id }).ToArray();
+            }
+            catch
+            {
+                Console.WriteLine("Ошибка взятия информации о векторах");
+                return RedirectToAction("Login", "Account");
+            }
 
             Console.WriteLine($"Информация о векторах {model.Group_id}:");
             foreach (var s in UserInfo.CurStudentsEncoodings)
-                Console.WriteLine($"{s.Id} - {s.Encoding}");
+                Console.WriteLine($"{s.Student_id} - {s.Encoding}");
             Console.WriteLine();
 
             UserInfo.CurSubject = model.Subject;
@@ -92,6 +90,8 @@ namespace face_rec_test1.Controllers
         [HttpPost]
         public void LessonOff()
         {
+            WriteInSessionLog(UserInfo.CurGroup, UserInfo.CurSubject, UserInfo.CurStudentsNames);
+
             UserInfo.CurSubject = null;
             UserInfo.CurGroup = null;
 
@@ -188,10 +188,10 @@ namespace face_rec_test1.Controllers
 
                                     if (FaceRecognition.CompareFace(known_encoding, unknown_encoding, tolerance))
                                     {
-                                        if (!counts.ContainsKey(student.Id))
-                                            counts.Add(student.Id, 0);
+                                        if (!counts.ContainsKey(student.Student_id))
+                                            counts.Add(student.Student_id, 0);
 
-                                        counts[student.Id]++;
+                                        counts[student.Student_id]++;
                                     }
                                 }
 
@@ -237,5 +237,30 @@ namespace face_rec_test1.Controllers
         }
 
         
+        private void WriteInSessionLog(string group_id, string subject, Models.TeacherPanelModel.TeacherStudentsName[] cur_students)
+        {
+            var csv_file = $"D:\\{group_id}_{subject}.csv";
+
+            
+            List<string> lines = System.IO.File.ReadAllLines(csv_file, Encoding.UTF8).ToList();
+
+            lines[0] += "," + DateTime.Now.ToString("dd-MM-yyyy");
+
+            for (int i = 1; i < lines.Count; ++i)
+            {
+                lines[i] += cur_students[i-1].IsThere ? ",+" : ",-";
+            }
+
+            foreach (var line in lines)
+            {
+                Console.WriteLine(line);
+            }
+
+            
+            System.IO.File.WriteAllLines(csv_file, lines, Encoding.UTF8);
+            Console.WriteLine("Данные занесены в журнал посещаемости");
+        }
+
+
     }
 }

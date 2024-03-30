@@ -31,7 +31,7 @@ namespace face_rec_test1.Models
 
         public class TeacherStudentsEncoding
         {
-            public int Id { get; set; }
+            public int Student_id { get; set; }
 
             public double[]? Encoding { get; set; }
         }

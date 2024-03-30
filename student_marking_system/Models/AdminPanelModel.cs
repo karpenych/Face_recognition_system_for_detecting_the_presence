@@ -35,6 +35,9 @@ namespace face_rec_test1.Models
 
         public class AddStudentModel
         {
+            [Required(ErrorMessage = "Введите ID")]
+            public int? Id { get; set; }
+
             [Required(ErrorMessage = "Введите группу")]
             public string? Group_id { get; set; }
 
