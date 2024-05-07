@@ -6,6 +6,8 @@ using FaceRecognitionDotNet;
 using Dapper;
 using System.Text;
 using System.Runtime.InteropServices;
+using Amazon.S3;
+using Amazon.S3.Model;
 
 
 
@@ -94,7 +96,7 @@ namespace face_rec_test1.Controllers
 
             UserInfo.CurSubject = null;
             UserInfo.CurGroup = null;
-
+            
             UserInfo.IsCameraWorking = false;
             UserInfo.IsLesson = false;
 
@@ -237,28 +239,48 @@ namespace face_rec_test1.Controllers
         }
 
         
-        private void WriteInSessionLog(string group_id, string subject, Models.TeacherPanelModel.TeacherStudentsName[] cur_students)
-        {
-            var csv_file = $"D:\\{group_id}_{subject}.csv";
+        static private async void WriteInSessionLog(string group_id, string subject, Models.TeacherPanelModel.TeacherStudentsName[] cur_students)
+        { 
+            var configsS3 = new AmazonS3Config
+            {
+                ServiceURL = "https://s3.yandexcloud.net"
+            };
+            var s3client = new AmazonS3Client(configsS3);
 
-            
-            List<string> lines = System.IO.File.ReadAllLines(csv_file, Encoding.UTF8).ToList();
+            var getRequest = new GetObjectRequest
+            {
+                BucketName = group_id,
+                Key = $"{group_id}_{subject}.csv"
+            };
 
-            lines[0] += "," + DateTime.Now.ToString("dd-MM-yyyy");
+            using var getResponse = await s3client.GetObjectAsync(getRequest);
+            using var sr = new StreamReader(getResponse.ResponseStream);      
+            var responseString = await sr.ReadToEndAsync();
+            var lines = responseString.Split("\r\n").ToList();
+
+            lines[0] = $"{lines[0]},{DateTime.Now:dd-MM-yyyy}";
 
             for (int i = 1; i < lines.Count; ++i)
             {
-                lines[i] += cur_students[i-1].IsThere ? ",+" : ",-";
+                lines[i] += cur_students[i - 1].IsThere ? ",+" : ",-";
             }
 
-            foreach (var line in lines)
-            {
-                Console.WriteLine(line);
-            }
-
+            var textToSend = string.Join("\r\n", lines);
+            Console.WriteLine(textToSend);
             
-            System.IO.File.WriteAllLines(csv_file, lines, Encoding.UTF8);
-            Console.WriteLine("Данные занесены в журнал посещаемости");
+            var textAsBytes = Encoding.UTF8.GetBytes(textToSend);
+
+            using var ms = new MemoryStream(textAsBytes);
+            ms.Position = 0;
+
+            var putRequest = new PutObjectRequest
+            {
+                BucketName = group_id,
+                Key = $"{group_id}_{subject}.csv",
+                InputStream = ms,
+            };
+
+            await s3client.PutObjectAsync(putRequest);
         }
 
 
