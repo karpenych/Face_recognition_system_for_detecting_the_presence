@@ -6,8 +6,13 @@
 
     <form asp-action="AddStudent" asp-controller="Admin" asp-anti-forgery="true" method="post">
         <div class="warning">
+            <span asp-validation-for="Id"></span>
             <span asp-validation-for="Group_id"></span>
             <span asp-validation-for="Full_name"></span>
+        </div>
+
+        <div class="mt-1">
+            <input placeholder="ID" class="form-control _input form_element" type="number" asp-for="Id" />
         </div>
 
         <div class="mt-1">

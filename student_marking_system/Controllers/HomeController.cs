@@ -1,18 +1,15 @@
 ﻿using face_rec_test1.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
-using System.Runtime.CompilerServices;
 using FaceRecognitionDotNet;
 using Dapper;
-using Emgu.CV.Dnn;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Razor.Infrastructure;
 using System.Text;
-using Emgu.CV.Structure;
-using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
+using Amazon.S3;
+using Amazon.S3.Model;
+
+
 
 namespace face_rec_test1.Controllers
 {
@@ -53,25 +50,28 @@ namespace face_rec_test1.Controllers
             try
             {
                 UserInfo.CurStudentsNames = UserInfo.Connection.Query<TeacherPanelModel.TeacherStudentsName>(
-                    "SELECT id, full_name FROM students WHERE group_id=@Group_id", new { model.Group_id }).ToArray();
-
-                UserInfo.CurStudentsEncoodings = UserInfo.Connection.Query<TeacherPanelModel.TeacherStudentsEncoding>(
-                    "SELECT s.id, fe.encoding FROM students s JOIN face_encodings fe ON s.id=fe.student_id WHERE s.group_id=@Group_id", new { model.Group_id }).ToArray();
+                    "SELECT id, full_name FROM students WHERE group_id=@Group_id", new { model.Group_id }).OrderBy(x => x.Full_name).ThenBy(x => x.Id).ToArray();
             }
             catch
             {
-                Console.WriteLine("Ошибка взятия информации о группе");
+                Console.WriteLine("Ошибка взятия информации о студентах");
                 return RedirectToAction("Login", "Account");
             }
 
-            Console.WriteLine($"Информация о студентах {model.Group_id}:");
-            foreach (var s in UserInfo.CurStudentsNames)
-                Console.WriteLine($"{s.Id} - {s.Full_name} - {s.IsThere}");
-            Console.WriteLine();
+            try
+            {
+                UserInfo.CurStudentsEncoodings = UserInfo.Connection.Query<TeacherPanelModel.TeacherStudentsEncoding>(
+                    "SELECT student_id, encoding FROM face_encodings WHERE group_id=@Group_id", new { model.Group_id }).ToArray();
+            }
+            catch
+            {
+                Console.WriteLine("Ошибка взятия информации о векторах");
+                return RedirectToAction("Login", "Account");
+            }
 
             Console.WriteLine($"Информация о векторах {model.Group_id}:");
             foreach (var s in UserInfo.CurStudentsEncoodings)
-                Console.WriteLine($"{s.Id} - {s.Encoding}");
+                Console.WriteLine($"{s.Student_id} - {s.Encoding}");
             Console.WriteLine();
 
             UserInfo.CurSubject = model.Subject;
@@ -92,9 +92,11 @@ namespace face_rec_test1.Controllers
         [HttpPost]
         public void LessonOff()
         {
+            WriteInSessionLog(UserInfo.CurGroup, UserInfo.CurSubject, UserInfo.CurStudentsNames);
+
             UserInfo.CurSubject = null;
             UserInfo.CurGroup = null;
-
+            
             UserInfo.IsCameraWorking = false;
             UserInfo.IsLesson = false;
 
@@ -188,10 +190,10 @@ namespace face_rec_test1.Controllers
 
                                     if (FaceRecognition.CompareFace(known_encoding, unknown_encoding, tolerance))
                                     {
-                                        if (!counts.ContainsKey(student.Id))
-                                            counts.Add(student.Id, 0);
+                                        if (!counts.ContainsKey(student.Student_id))
+                                            counts.Add(student.Student_id, 0);
 
-                                        counts[student.Id]++;
+                                        counts[student.Student_id]++;
                                     }
                                 }
 
@@ -237,5 +239,50 @@ namespace face_rec_test1.Controllers
         }
 
         
+        static private async void WriteInSessionLog(string group_id, string subject, Models.TeacherPanelModel.TeacherStudentsName[] cur_students)
+        { 
+            var configsS3 = new AmazonS3Config
+            {
+                ServiceURL = "https://s3.yandexcloud.net"
+            };
+            var s3client = new AmazonS3Client(configsS3);
+
+            var getRequest = new GetObjectRequest
+            {
+                BucketName = group_id,
+                Key = $"{group_id}_{subject}.csv"
+            };
+
+            using var getResponse = await s3client.GetObjectAsync(getRequest);
+            using var sr = new StreamReader(getResponse.ResponseStream);      
+            var responseString = await sr.ReadToEndAsync();
+            var lines = responseString.Split("\r\n").ToList();
+
+            lines[0] = $"{lines[0]},{DateTime.Now:dd-MM-yyyy}";
+
+            for (int i = 1; i < lines.Count; ++i)
+            {
+                lines[i] += cur_students[i - 1].IsThere ? ",+" : ",-";
+            }
+
+            var textToSend = string.Join("\r\n", lines);
+            Console.WriteLine(textToSend);
+            
+            var textAsBytes = Encoding.UTF8.GetBytes(textToSend);
+
+            using var ms = new MemoryStream(textAsBytes);
+            ms.Position = 0;
+
+            var putRequest = new PutObjectRequest
+            {
+                BucketName = group_id,
+                Key = $"{group_id}_{subject}.csv",
+                InputStream = ms,
+            };
+
+            await s3client.PutObjectAsync(putRequest);
+        }
+
+
     }
 }
