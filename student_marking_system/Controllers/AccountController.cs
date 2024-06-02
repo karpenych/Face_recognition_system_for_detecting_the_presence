@@ -106,5 +106,6 @@ namespace face_rec_test1.Controllers
             return RedirectToAction("Login", "Account");
         }
 
+
     }
 }

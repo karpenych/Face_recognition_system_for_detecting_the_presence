@@ -5,6 +5,7 @@
         <div class="warning">
             <span asp-validation-for="Subject"></span>
             <span asp-validation-for="Group_id"></span>
+            <span asp-validation-for="Camera_id"></span>
         </div>
 
         <div class="mt-3">
@@ -17,6 +18,13 @@
         <div class="mt-3">
             <label asp-for="Group_id">Выберите группу:</label>
             <select id="Group_id" class="form-control _input form_element" asp-for="Group_id"></select>
+        </div>
+
+        <div class="mt-3">
+            <label asp-for="Camera_id">Выберите камеру:</label>
+            <select id="Camera_id" class="form-control _input form_element" asp-for="Camera_id">
+                <option></option>
+            </select>
         </div>
 
         <div class="mt-3">
@@ -52,5 +60,19 @@
             }
         });
     });
+
+
+    var cameras = "";
+    $.ajax({
+        type: "POST",
+        url: "/Home/GetCameras",
+        success: function (data) {
+            $.each(data, function (k, option) {
+                cameras += "<option value = '" + option + "'>" + option + " </option>";
+            });
+            $('#Camera_id').html(cameras);
+        }
+    });
+
 
 </script>
