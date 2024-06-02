@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+
 namespace face_rec_test1.Models
 {
     public class TeacherPanelModel
@@ -26,7 +27,7 @@ namespace face_rec_test1.Models
 
             public string? Full_name { get; set; }
 
-            public bool IsThere {  get; set; }
+            public bool IsThere { get; set; }
         }
 
         public class TeacherStudentsEncoding

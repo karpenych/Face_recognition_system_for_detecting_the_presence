@@ -1,14 +1,8 @@
 ﻿using Dapper;
-using Emgu.CV.Dnn;
-using Emgu.CV.Features2D;
-using face_rec_test1.Models;
 using FaceRecognitionDotNet;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Diagnostics;
-using System.IO;
 using System.Text;
-using System.Threading.RateLimiting;
-using System.Windows.Markup;
+
 
 namespace face_rec_test1.Controllers
 {

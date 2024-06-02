@@ -136,7 +136,7 @@ namespace face_rec_test1.Controllers
             { 
                 if (UserInfo.IsCameraWorking)
                 {
-                    var camera = new VideoCapture(0);
+                    var camera = new VideoCapture(1);
                     camera.Set(CapProp.Fps, 30);
                     camera.Set(CapProp.FrameHeight, 450);
                     camera.Set(CapProp.FrameWidth, 370);
@@ -216,6 +216,7 @@ namespace face_rec_test1.Controllers
                                 else
                                 {
                                     Console.WriteLine("Броу, это не твоя пара...");
+                                    Thread.Sleep(1000);
                                 }
                             }
                             else

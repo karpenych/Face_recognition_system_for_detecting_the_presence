@@ -2,7 +2,6 @@
 using Npgsql;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using face_rec_test1.Models;
 
 
 namespace face_rec_test1.Controllers
@@ -98,18 +97,6 @@ namespace face_rec_test1.Controllers
         public IActionResult LogOut()
         {
             Console.WriteLine($"Досвидания {UserInfo.UserFullName}.\n");
-
-            if (UserInfo.IsLesson)
-            {
-                UserInfo.CurSubject = null;
-                UserInfo.CurGroup = null;
-
-                UserInfo.IsCameraWorking = false;
-                UserInfo.IsLesson = false;
-
-                UserInfo.CurStudentsNames = Array.Empty<TeacherPanelModel.TeacherStudentsName>();
-                UserInfo.CurStudentsEncoodings = Array.Empty<TeacherPanelModel.TeacherStudentsEncoding>();
-            }
 
             UserInfo.Subjects = Array.Empty<string>();
 
