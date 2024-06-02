@@ -19,6 +19,9 @@ namespace face_rec_test1.Models
 
             [Required(ErrorMessage = "Выберите группу")]
             public string? Group_id { get; set; }
+
+            [Required(ErrorMessage = "Выберите камеру")]
+            public int Camera_id { get; set; }
         }
 
         public class TeacherStudentsName

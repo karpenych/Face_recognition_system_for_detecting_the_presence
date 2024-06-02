@@ -45,6 +45,29 @@ namespace face_rec_test1.Controllers
             }
         }
 
+
+        public JsonResult GetCameras()
+        {
+            List<int> cameras = new();
+            int cur_camera_id = 0;
+
+            while (true)
+            {
+                var camera = new VideoCapture(cur_camera_id);
+
+                if (!camera.IsOpened)
+                {
+                    break;
+                }
+
+                cameras.Add(cur_camera_id);
+                cur_camera_id++;
+            }
+
+            return Json(cameras); 
+        }
+
+
         public IActionResult LessonStart(Models.TeacherPanelModel.TeacherGetStudentsModel model)
         {
             try
@@ -80,8 +103,8 @@ namespace face_rec_test1.Controllers
             UserInfo.IsLesson = true;
             UserInfo.IsCameraWorking = true;
 
-            var start_camera = new Thread(CameraHandleLoop);
-            start_camera.Start();
+            var start_camera = new Thread(new ParameterizedThreadStart(CameraHandleLoop));
+            start_camera.Start(model.Camera_id);
 
             Console.WriteLine("Занятие началось!");
 
@@ -123,7 +146,7 @@ namespace face_rec_test1.Controllers
         }  
 
 
-        private void CameraHandleLoop()
+        private void CameraHandleLoop(object camera_id)
         {
             const double tolerance = 0.6d;
 
@@ -136,7 +159,7 @@ namespace face_rec_test1.Controllers
             { 
                 if (UserInfo.IsCameraWorking)
                 {
-                    var camera = new VideoCapture(1);
+                    var camera = new VideoCapture((int)camera_id);
                     camera.Set(CapProp.Fps, 30);
                     camera.Set(CapProp.FrameHeight, 450);
                     camera.Set(CapProp.FrameWidth, 370);
