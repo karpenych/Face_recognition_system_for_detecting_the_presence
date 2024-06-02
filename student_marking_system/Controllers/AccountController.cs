@@ -48,7 +48,7 @@ namespace face_rec_test1.Controllers
             try
             {
                 user = UserInfo.Connection.Query<Models.TeacherPanelModel.TeacherEnterModel>(
-                    "SELECT login, full_name FROM employees WHERE login=@Login AND password=@Password", new { model.Login, model.Password });
+                    "SELECT login, full_name FROM employees WHERE login=@Login AND password=crypt(@Password, password)", new { model.Login, model.Password });
             }
             catch
             {

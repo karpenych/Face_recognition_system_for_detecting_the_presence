@@ -45,7 +45,7 @@ namespace face_rec_test1.Controllers
             try
             {
                 await UserInfo.Connection.ExecuteAsync(
-                    "INSERT INTO employees (login, password, full_name) VALUES (@Login, @Password, @Full_name)", model);
+                    "INSERT INTO employees VALUES (@Login, crypt(@Password, gen_salt('bf', 8)), @Full_name)", model);
             }
             catch
             {
