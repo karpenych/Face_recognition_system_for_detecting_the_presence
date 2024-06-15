@@ -89,7 +89,7 @@ namespace face_rec_test1.Controllers
                 }
             }
             
-            ModelState.AddModelError("", "Некорректный логин (и/или) пароль");
+            ModelState.AddModelError("", "Непрвильный логин/пароль");
             return View(model);
         }
 

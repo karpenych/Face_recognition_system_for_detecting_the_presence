@@ -238,7 +238,7 @@ namespace face_rec_test1.Controllers
                                 }
                                 else
                                 {
-                                    Console.WriteLine("Броу, это не твоя пара...");
+                                    Console.WriteLine("Обнаружен шпион...");
                                     Thread.Sleep(1000);
                                 }
                             }
