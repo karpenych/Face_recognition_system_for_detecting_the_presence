@@ -6,6 +6,7 @@
             <span asp-validation-for="Subject"></span>
             <span asp-validation-for="Group_id"></span>
             <span asp-validation-for="Camera_id"></span>
+            <span asp-validation-for="Port_name"></span>
         </div>
 
         <div class="mt-3">
@@ -23,6 +24,13 @@
         <div class="mt-3">
             <label asp-for="Camera_id">Выберите камеру:</label>
             <select id="Camera_id" class="form-control _input form_element" asp-for="Camera_id">
+                <option></option>
+            </select>
+        </div>
+
+        <div class="mt-3">
+            <label asp-for="Port_name">Выберите порт микроконтроллера:</label>
+            <select id="Port_name" class="form-control _input form_element" asp-for="Port_name">
                 <option></option>
             </select>
         </div>
@@ -71,6 +79,19 @@
                 cameras += "<option value = '" + option + "'>" + option + " </option>";
             });
             $('#Camera_id').html(cameras);
+        }
+    });
+
+
+    var ports = "";
+    $.ajax({
+        type: "POST",
+        url: "/Home/GetSerialPorts",
+        success: function (data) {
+            $.each(data, function (k, option) {
+                ports += "<option value = '" + option + "'>" + option + " </option>";
+            });
+            $('#Port_name').html(ports);
         }
     });
 

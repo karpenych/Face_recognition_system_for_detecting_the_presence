@@ -1,13 +1,14 @@
-﻿using face_rec_test1.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Amazon.S3;
+using Amazon.S3.Model;
+using Dapper;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
+using face_rec_test1.Models;
 using FaceRecognitionDotNet;
-using Dapper;
-using System.Text;
+using Microsoft.AspNetCore.Mvc;
+using System.IO.Ports;
 using System.Runtime.InteropServices;
-using Amazon.S3;
-using Amazon.S3.Model;
+using System.Text;
 
 
 
@@ -68,6 +69,19 @@ namespace face_rec_test1.Controllers
         }
 
 
+        public JsonResult GetSerialPorts()
+        {
+            return Json(SerialPort.GetPortNames());
+        }
+
+
+        struct CameraHandleParams
+        {
+            public int Camera_id { get; set; }
+            public string? Port_name { get; set; }
+        }
+
+
         public IActionResult LessonStart(Models.TeacherPanelModel.TeacherGetStudentsModel model)
         {
             try
@@ -103,8 +117,14 @@ namespace face_rec_test1.Controllers
             UserInfo.IsLesson = true;
             UserInfo.IsCameraWorking = true;
 
+            CameraHandleParams thread_parametrs = new() 
+            { 
+                Camera_id = model.Camera_id, 
+                Port_name = model.Port_name 
+            };
+
             var start_camera = new Thread(new ParameterizedThreadStart(CameraHandleLoop));
-            start_camera.Start(model.Camera_id);
+            start_camera.Start(thread_parametrs);
 
             Console.WriteLine("Занятие началось!");
 
@@ -146,9 +166,18 @@ namespace face_rec_test1.Controllers
         }  
 
 
-        private void CameraHandleLoop(object camera_id)
+        private void CameraHandleLoop(object parametrs_)
         {
+            CameraHandleParams parametrs = (CameraHandleParams)parametrs_;
+
+            SerialPort serial_port = new(parametrs.Port_name, 250000, Parity.None, 8, StopBits.One)
+            {
+                Handshake = Handshake.None
+            };
+            serial_port.Open();
+
             const double tolerance = 0.6d;
+
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             FaceRecognition.InternalEncoding = System.Text.Encoding.GetEncoding("windows-1251");
@@ -159,7 +188,7 @@ namespace face_rec_test1.Controllers
             { 
                 if (UserInfo.IsCameraWorking)
                 {
-                    var camera = new VideoCapture((int)camera_id);
+                    var camera = new VideoCapture(parametrs.Camera_id);
                     camera.Set(CapProp.Fps, 30);
                     camera.Set(CapProp.FrameHeight, 450);
                     camera.Set(CapProp.FrameWidth, 370);
@@ -167,6 +196,7 @@ namespace face_rec_test1.Controllers
                     if (camera.IsOpened)  // Обработка кадров 
                     {
                         Console.WriteLine("Камера подключена");
+                        serial_port.Write("t");
 
                         while (UserInfo.IsCameraWorking)
                         {
@@ -231,6 +261,8 @@ namespace face_rec_test1.Controllers
                                             student.IsThere = true;
                                             Console.WriteLine($"Пришел {student.Full_name} ({student.Id})");
 
+                                            serial_port.Write("y");
+
                                             Thread.Sleep(2000);
                                             break;
                                         }
@@ -239,6 +271,9 @@ namespace face_rec_test1.Controllers
                                 else
                                 {
                                     Console.WriteLine("Обнаружен шпион...");
+
+                                    serial_port.Write("n");
+
                                     Thread.Sleep(1000);
                                 }
                             }
@@ -248,7 +283,7 @@ namespace face_rec_test1.Controllers
                                 Thread.Sleep(2000);
                             }
                         }
-
+                        serial_port.Write("o");
                         camera.Dispose();
                         Thread.Sleep(1000);
                     }
@@ -260,9 +295,10 @@ namespace face_rec_test1.Controllers
                     }
                 }
             }
+            serial_port.Close();
         }
 
-        
+
         static private async void WriteInSessionLog(string group_id, string subject, Models.TeacherPanelModel.TeacherStudentsName[] cur_students)
         { 
             var configsS3 = new AmazonS3Config
