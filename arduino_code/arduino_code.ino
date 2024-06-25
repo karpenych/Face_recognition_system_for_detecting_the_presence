@@ -1,8 +1,6 @@
 int WORK_SIGNAL = 2;
 int YES_SIGNAL = 3;
 int NO_SIGNAL = 4;
-
-
 char TURN = 't';
 char OFF = 'o';
 char YES = 'y';
